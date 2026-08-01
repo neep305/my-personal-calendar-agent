@@ -23,10 +23,13 @@
 * **단발성 작업 (`query()`)**: "특정 파일의 버그를 수정해줘" 같은 단일 태스크 처리 시 사용.
 * **지속적 세션 (`ClaudeSDKClient`)**: 사용자와 에이전트 간 연속적인 멀티턴 대화, 상태 유지, 양방향 상호작용이 필요한 에이전트 개발 시 **`ClaudeSDKClient`** 사용 필수.
 
-### ④ 컨텍스트 엔지니어링 & 스킬 시스템 (Context Compaction & `SKILL.md`)
+### ④ 컨텍스트 엔지니어링, 스킬 시스템 & 다국어 매니페스트 (Context Compaction, `SKILL.md` & Multi-lingual Policy)
 
 * **컨텍스트 절약 규칙**: 에이전트에게 필요한 모든 방대한 지침을 System Prompt에 집어넣어 Context Window를 오염시키지 않습니다.
-* **`SKILL.md` 플레이북 구조**: 특정 전문 업무(예: 데이터 변환 매뉴얼, 특정 API 사용법)는 모듈화된 `SKILL.md` 파일로 분리하고, 에이전트가 해당 작업이 필요할 때만 런타임에 로드하도록 설계합니다.
+* **`SKILL.md` 플레이북 구조**: 특정 전문 업무(예: 일정 충돌 해결 플레이북)는 모듈화된 `SKILL.md` 파일로 분리하고, 에이전트가 해당 작업이 필요할 때만 런타임에 로드하도록 설계합니다.
+* **다국어 응답 및 시스템 언어 보존 매니페스트 (Multi-lingual Matching & System Language Policy)**:
+  - 사용자가 질의하는 언어에 맞춰 최종 답변 언어를 동적으로 선택합니다. (한국어 질문 $\rightarrow$ 한국어 응답, 영어 질문 $\rightarrow$ 영어 응답)
+  - 단, `[TOOL CALL]`, `[THOUGHT]`, `mcp__calendar__*`, ▶, ✔, ⏱, ■, ●, ◆, ℹ, ✖ 등 터미널 디버그 로그, 시스템 특수문자 및 MCP 도구 명칭의 영문 표현은 사용자 언어와 상관없이 기존 영문 및 기호를 100% 보존합니다.
 
 ### ⑤ 최소 권한 제어, Pre-Tool-Hook & 안전성 (`allowed_tools`, `pre_tool_hook`)
 
@@ -54,9 +57,11 @@ my-agent-project/
 ├── storage/                      # 데이터베이스 및 외부 서비스 계층
 ├── tools/                        # Pydantic + @tool + create_sdk_mcp_server 도구 모음
 ├── agent/
-│   ├── core.py                   # ClaudeSDKClient / query 에이전트 엔진
-│   ├── prompt.py                 # 동적 런타임 팩트/매핑표 주입 모듈
+│   ├── core.py                   # ClaudeSDKClient / query 에이전트 엔진 (skills 옵션 적용)
+│   ├── prompt.py                 # 동적 런타임 팩트/매핑표/다국어 정책 주입 모듈
 │   └── memory.py                 # 대화 이력 및 세션 상태 관리
+├── .agents/
+│   └── skills/                   # 프로젝트 전용 커스텀 스킬 (calendar-smart-scheduler)
 └── tests/                        # pytest 유닛 및 통합 테스트
 ```
 
@@ -68,13 +73,15 @@ my-agent-project/
 2. [ ] **도구 정의**: `tools/`에 Pydantic Schema + `@tool` 구현 후 `create_sdk_mcp_server`로 In-process MCP 바인딩.
 3. [ ] **Pre-Tool-Hook 등록**: 파괴적 작업 승인이나 인자 검증이 필요할 경우 `pre_tool_hook` 콜백 함수 구현 및 옵션 바인딩.
 4. [ ] **환각 방지**: 상대적 날짜나 셈이 필요한 팩트는 LLM에게 추론시키지 말고 코드 팩트(매핑 테이블 등)를 `agent/prompt.py`에서 주입.
-5. [ ] **옵션 설정**: `ClaudeAgentOptions`에 `mcp_servers`, `allowed_tools`, `thinking={"type": "disabled"}` 설정.
-6. [ ] **세션 선택**: 대화형 에이전트는 `ClaudeSDKClient`, 단발성 처리는 `query()` 채택.
-7. [ ] **터미널 UX**: 한글 CJK 백스페이스 오프셋 문제 방지를 위해 `prompt_toolkit` 활용.
+5. [ ] **다국어 응답 매니페스트**: 사용자 입력 언어에 맞춘 답변 및 시스템/로그 영문 보존 지침을 System Prompt에 기술.
+6. [ ] **옵션 설정**: `ClaudeAgentOptions`에 `mcp_servers`, `allowed_tools`, `skills`, `setting_sources`, `thinking={"type": "disabled"}` 설정.
+7. [ ] **세션 선택**: 대화형 에이전트는 `ClaudeSDKClient`, 단발성 처리는 `query()` 채택.
+8. [ ] **터미널 UX**: 컬럼 폭 왜곡 방지를 위한 단일 폭 유니코드 기호 적용 및 동적 스피너 렌더링.
 
 ---
 
 ## 📚 관련 문서
 
 * [Claude Agent SDK 상세 지침 및 Pre-Tool-Hook 가이드 (CLAUDE_AGENT_SDK_DETAILS.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/CLAUDE_AGENT_SDK_DETAILS.md)
+* [버그 조치 및 원인 분석 문서 (BUG_FIX.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/BUG_FIX.md)
 * [프로젝트 메인 안내서 (README.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/README.md)

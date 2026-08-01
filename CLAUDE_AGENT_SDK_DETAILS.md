@@ -74,29 +74,38 @@ class AgentMemoryManager:
 
 ---
 
-### 2.2 스킬 시스템 (Skills / Playbooks & `SKILL.md`)
+### 2.2 스킬 시스템 (Skills / Playbooks, `skills` Options & `SKILL.md`)
 
 #### 개념
 * **동적 지침 로딩 (Dynamic Instruction Loading)**: 에이전트의 System Prompt에 모든 업무 지침과 가이드를 일괄 작성하면 토큰이 낭비되고 환각이 증가합니다.
-* **`SKILL.md` 플레이북**: 특정 업무(예: 일정 추천 알고리즘 가이드, 특정 포맷 변환 매뉴얼)를 모듈화된 `SKILL.md` 디렉토리로 작성해두고, 에이전트가 해당 작업이 필요할 때만 런타임에 읽어 들여 활용합니다.
+* **`SKILL.md` 플레이북**: 특정 업무(예: 일정 충돌 해결 플레이북)를 모듈화된 `SKILL.md` 디렉토리로 작성해두고, 에이전트가 해당 작업이 필요할 때만 런타임에 읽어 들여 활용합니다.
+* **다국어 응답 & 시스템 명칭 보존 지침**: 사용자의 입력 언어에 맞춰 답변 언어를 선택하되, `[TOOL CALL]`, `[THOUGHT]`, `mcp__calendar__*`, 유니코드 특수문자(`▶`, `✔`, `⏱` 등) 및 터미널 디버그 로그의 영문 표현은 사용자 언어와 무관하게 100% 보존합니다.
 
-#### `SKILL.md` 구조 및 예시
+#### `SKILL.md` 구조 및 예시 (`.agents/skills/calendar-smart-scheduler/SKILL.md`)
 ```markdown
 ---
-name: calendar-analytics
-description: 빈 시간대 추천 및 주간 브리핑 작성 전문 스킬 지침서
+name: calendar-smart-scheduler
+description: Smart calendar scheduling and conflict resolution playbook for Personal Calendar Agent.
 ---
 
-# 📅 일정 분석 및 추천 플레이북
+# ▶ Smart Calendar Scheduler Playbook
 
-1. 사용자의 빈 시간대 검색 요청 시 최소 30분 단위 슬롯을 추천한다.
-2. 우선순위: 오전 10시~11:30시, 오후 14시~16시 시간대를 우선 제안한다.
-3. 중복되거나 겹치는 시간대는 반드시 제외한다.
+1. 사용자가 질문한 언어(한국어/영어 등)에 맞춰 답변 언어를 동적으로 선택합니다.
+2. 단, ✔, ℹ, ▶, ⏱, ■, ●, ◆, ✖ 등 유니코드 특수기호 및 [TOOL CALL], [THOUGHT] 등의 시스템/디버그 표현은 언어 변경 없이 고정 유지합니다.
+3. 사전 충돌 검사(`check_conflicts`) 및 대체 시간 추천(`get_free_slots`) 워크플로우를 반드시 이행합니다.
 ```
 
-#### Python Dynamic Skill Injection 예시
+#### Python SDK Skills Injection 예시 (`agent/core.py`)
 ```python
-import os
+options = ClaudeAgentOptions(
+    system_prompt=system_prompt,
+    mcp_servers=mcp_servers,
+    allowed_tools=allowed_tools,
+    skills=["calendar-smart-scheduler"],  # 프로젝트 스킬 활성화
+    setting_sources=["user", "project"],   # .agents/skills 탐색 바인딩
+    thinking={"type": "disabled"}
+)
+```
 
 def load_skill_instructions(skill_name: str) -> str:
     skill_path = os.path.join("skills", skill_name, "SKILL.md")

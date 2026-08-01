@@ -62,4 +62,19 @@ LLM에게 달력 날짜 연산을 직접 계산하도록 맡기지 않고, **Pyt
 | 이번주 토요일 | `2023-06-03` | **`2026-08-01` (토요일)** |
 | 이번주 일요일 | `2023-06-04` | **`2026-08-02` (일요일)** |
 
-단위 테스트 (`scratch/test_date_parsing.py`) 및 pytest 전체 테스트 5개 케이스 통과 완료.
+단위 테스트 (`scratch/test_date_parsing.py`) 및 pytest 전체 테스트 통과 완료.
+
+---
+
+## 5. 추가 개선 내역 (Recent Enhancements)
+
+### ① 다국어 응답 매니페스트 (Multi-lingual Matching Policy)
+* 사용자의 입력 언어에 맞춰 답변 언어를 동적으로 변경하도록 System Prompt([`agent/prompt.py`](file:///Users/jason/dev/ai/my-personal-calendar-agent/agent/prompt.py)) 및 스킬([`SKILL.md`](file:///Users/jason/dev/ai/my-personal-calendar-agent/.agents/skills/calendar-smart-scheduler/SKILL.md)) 규칙 추가.
+* 단, `[TOOL CALL]`, `[THOUGHT]`, `mcp__calendar__*`, 유니코드 특수문자(`▶`, `✔`, `⏱` 등) 등 터미널 디버그 로그 및 시스템 표현의 영문 표기는 언어 변경 없이 100% 영문 고정.
+
+### ② 터미널 컬럼 왜곡 방지를 위한 유니코드 특수문자 도입
+* 2셀 가변 폭 이모지(📅, 📊, 🛠️, 📌 등) 대신 단일 폭 유니코드 기호(`▶`, `✔`, `⏱`, `■`, `●`, `◆`, `ℹ`, `✖`) 적용.
+
+### ③ CLI 스피너 & 누적 로그 UI 구현
+* `main.py`에 동적 스피너(`console.status`)와 한 줄 띄움 간격의 단계별 디버그 패널 누적(Persist) UI 적용 완료.
+

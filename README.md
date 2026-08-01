@@ -16,21 +16,21 @@ Anthropic의 공식 파이썬 패키지인 **`claude-agent-sdk` (v0.2.128)**와 
 * `thinking={"type": "disabled"}` 옵션을 적용하여 멀티턴 툴 호출 시 Extended Thinking 블록 불일치로 인한 API Error 400을 원천 방지하였습니다.
 
 ### 3. 동적 날짜 매핑 주입 (LLM 환각 차단)
-* Python `datetime` 연산으로 생성된 **실시간 [이번 주/다음 주 요일별 YYYY-MM-DD 매핑 테이블]**을 System Prompt에 동적 주입하여 "이번주 토요일", "다음주 수요일" 등 상대적 시각 표현 지시 시 2023년 등의 과거 날짜로 오등록되는 환각을 100% 방지합니다 ([BUG_FIX.md](file:///Users/jason/dev/ai/my-personal-calendar-agent/BUG_FIX.md) 참조).
+* Python `datetime` 연산으로 생성된 **실시간 [이번 주/다음 주 요일별 YYYY-MM-DD 매핑 테이블]**을 System Prompt에 동적 주입하여 "이번주 토요일", "다음주 수요일" 등 상대적 시각 표현 지시 시 과거 날짜로 오등록되는 환각을 100% 방지합니다 ([BUG_FIX.md](file:///Users/jason/dev/ai/my-personal-calendar-agent/BUG_FIX.md) 참조).
 
-### 4. Rich 기반 CLI UI & 실시간 디버그 모드 (Debug On/Off)
-* **Rich 터미널 UX**: `rich` 패키지의 Panel, Markdown, Table, Status Spinner를 전면 도입하여 터미널 상에서 깔끔한 대화형 인터페이스와 표 형태의 일정 목록을 제공합니다.
-* **디버그 모드 (`/debug [on|off]` 또는 `uv run main.py --debug`)**:
-  * **Debug ON**: 도구 호출(`ToolUse`), 인자값, 도구 실행 결과(`ToolResult`), 중간 사고 과정(`Thought`) 등 에이전트 추론 전 과정을 실시간 패널/로그로 시각화합니다.
-  * **Debug OFF**: 추론 과정 상세 로그는 은닉하고 Rich Spinner 인디케이터만 표시 후 깔끔하게 최종 응답만 출력합니다.
+### 4. 동적 다국어 응답 매니페스트 (Multi-lingual Policy)
+* **언어 매칭 (Language Matching)**: 사용자가 한국어로 질문하면 한국어로, 영어(English)로 질문하면 영어로 에이전트 답변이 동적 생성됩니다.
+* **시스템/로그 영문 보존**: `[TOOL CALL]`, `[THOUGHT]`, `mcp__calendar__*`, ▶, ✔, ⏱, ■, ●, ◆, ℹ, ✖ 등 터미널 디버그 로그 및 특수 기호는 사용자 언어와 무관하게 기존 영문/기호 규격을 100% 보존합니다.
 
-### 5. 유저 레벨 동적 MCP 확장 (`mcp.json` & `tools/mcp_loader.py`)
-* **선언적 MCP 구성**: 프로젝트 루트의 [`mcp.json`](file:///Users/jason/dev/ai/my-personal-calendar-agent/mcp.json) 파일에 유저가 커스텀 MCP 서버(예: filesystem, git 등) 및 `allowed_tools` 규격을 정의하면, 런타임 시 내장 `calendar` MCP 서버와 안전하게 자동 병합되어 적용됩니다.
+### 5. Rich 기반 CLI UI, 단일 폭 유니코드 심볼 & 동적 스피너
+* **유니코드 특수문자 표기**: 2셀 가변 폭 이모지 대신 단일 폭 유니코드 기호(`▶`, `✔`, `⏱`, `■`, `●`, `◆`, `ℹ`, `✖`)를 도입하여 터미널 컬럼 폭 비틀림을 완전 방지했습니다.
+* **동적 스피너 & 단계별 로그 누적**: 하단에서 실시간 스피너(`⏱`)가 회전함과 동시에 각 디버그 작업(Tool Call 패널, Output 패널, Thought)의 수행 이력이 한 줄 띄움 간격으로 화면에 깔끔하게 누적 기록됩니다.
 
-### 6. 문서 인덱스 & Claude Agent SDK 상세 지침
-* **[Claude Agent SDK 상세 지침 및 Pre-Tool-Hook 가이드 (CLAUDE_AGENT_SDK_DETAILS.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/CLAUDE_AGENT_SDK_DETAILS.md)**: Pre-Tool-Hook을 활용한 사전 검증/승인 메커니즘, In-Process MCP 연동, 세션 및 권한 제어 등 SDK 상세 지침서.
-* **[Claude Agent 개발 마니페스트 (CLAUDE_AGENT_MANIFEST.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/CLAUDE_AGENT_MANIFEST.md)**: Anthropic 공식 블로그 기반 6대 핵심 기둥 및 보일러플레이트 가이드.
-* **[버그 조치 및 원인 분석 문서 (BUG_FIX.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/BUG_FIX.md)**: 상대적 시각 표현 환각 방지 및 날짜 매핑 주입 조치 보고서.
+### 6. 프로젝트 전용 커스텀 스킬 (`calendar-smart-scheduler`)
+* `ClaudeAgentOptions(skills=["calendar-smart-scheduler"], setting_sources=["user", "project"])`를 수동 바인딩하여 일정 등록 전 사전 충돌 검사(`check_conflicts`), 대체 시간대 추천(`get_free_slots`), 표준 요약 출력을 자동 수행합니다.
+
+### 7. 유저 레벨 동적 MCP 확장 (`mcp.json` & `tools/mcp_loader.py`)
+* **선언적 MCP 구성**: 프로젝트 루트의 [`mcp.json`](file:///Users/jason/dev/ai/my-personal-calendar-agent/mcp.json) 파일에 유저가 커스텀 MCP 서버(예: filesystem, slack 등) 및 `allowed_tools` 규격을 정의하면, 런타임 시 내장 `calendar` MCP 서버와 안전하게 자동 병합되어 적용됩니다.
 
 ---
 
@@ -104,12 +104,12 @@ uv run main.py
 ## 💬 대화 및 사용 예시
 
 ```text
-👤 사용자 > 내일 오전 10:30부터 30분간 서버사이드 태깅 콜 일정 등록해줘. 온라인콜 예정.
+👤 사용자 > 내일 오전 10:30부터 30분간 개발 리뷰 콜 일정 등록해줘.
 
 ⏳ 요청을 확인하고 일정을 처리하는 중입니다. 잠시만 기다려주세요...
 
 🤖 Agent >
-내일(2026-07-31) 오전 10:30부터 30분간 '서버사이드 태깅 콜' 일정을 성공적으로 등록했습니다!
+내일(2026-07-31) 오전 10:30부터 30분간 '개발 리뷰 콜' 일정을 성공적으로 등록했습니다!
 - 일정 ID: 6
 - 제목: 서버사이드 태깅 콜
 - 시간: 2026-07-31 10:30 ~ 11:00
