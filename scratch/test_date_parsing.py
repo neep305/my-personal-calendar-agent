@@ -8,5 +8,5 @@ print(info)
 
 print("\n=== System Prompt 확인 ===")
 prompt_text = build_system_prompt("2026-07-30 22:37:00 (Thursday)")
-assert "이번주 토요일: 2026-08-01" in prompt_text
-print("✅ 날짜 검증 완료: 이번주 토요일 -> 2026-08-01 매핑 성공!")
+assert "This week Saturday: 2026-08-01" in prompt_text
+print("✅ Date validation complete: This week Saturday -> 2026-08-01 mapping successful!")

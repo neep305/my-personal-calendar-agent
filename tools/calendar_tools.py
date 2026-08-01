@@ -77,7 +77,7 @@ async def create_event(args: dict) -> dict:
         location=args.get("location", ""),
         attendees=args.get("attendees", "")
     )
-    return {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "일정이 등록되었습니다.", "event": event}, ensure_ascii=False)}]}
+    return {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "Event successfully created.", "event": event}, ensure_ascii=False)}]}
 
 @tool("update_event", "기존 일정의 ID를 참조하여 일정을 수정합니다.", UpdateEventInput)
 async def update_event(args: dict) -> dict:
@@ -91,12 +91,12 @@ async def update_event(args: dict) -> dict:
         attendees=args.get("attendees")
     )
     if not updated:
-        return {"content": [{"type": "text", "text": json.dumps({"success": False, "message": f"ID {args['event_id']} 찾을 수 없음"}, ensure_ascii=False)}]}
-    return {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "일정이 수정되었습니다.", "event": updated}, ensure_ascii=False)}]}
+        return {"content": [{"type": "text", "text": json.dumps({"success": False, "message": f"Event ID {args['event_id']} not found."}, ensure_ascii=False)}]}
+    return {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "Event successfully updated.", "event": updated}, ensure_ascii=False)}]}
 
 @tool("delete_event", "일정을 취소하거나 완전히 삭제합니다.", DeleteEventInput)
 async def delete_event(args: dict) -> dict:
     success = repo.delete_event(event_id=args["event_id"], hard_delete=args.get("hard_delete", False))
     if not success:
-        return {"content": [{"type": "text", "text": json.dumps({"success": False, "message": f"ID {args['event_id']} 찾을 수 없음"}, ensure_ascii=False)}]}
-    return {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "일정이 취소/삭제되었습니다."}, ensure_ascii=False)}]}
+        return {"content": [{"type": "text", "text": json.dumps({"success": False, "message": f"Event ID {args['event_id']} not found."}, ensure_ascii=False)}]}
+    return {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "Event successfully cancelled/deleted."}, ensure_ascii=False)}]}

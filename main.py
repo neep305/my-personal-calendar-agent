@@ -20,43 +20,48 @@ from config import get_current_time_str, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KE
 console = Console()
 
 def print_banner(debug_mode: bool):
+    """
+    Claude Code CLI 스타일의 어플리케이션 아웃트로/배너 출력 (English UI)
+    """
     debug_status = "[bold green]ON[/bold green]" if debug_mode else "[bold dim]OFF[/bold dim]"
+    cwd = os.getcwd()
     
     banner_text = (
-        f"[bold cyan]\u25b6 AWS Bedrock Claude Agent 기반 개인일정관리 에이전트[/bold cyan]\n\n"
-        f"[bold white]\u23f1 현재 시각[/bold white]   : {get_current_time_str()}\n"
-        f"[bold white]\u25a0 AWS Region[/bold white]: {AWS_REGION}\n"
-        f"[bold white]\u25a0 Model ID[/bold white]  : {BEDROCK_MODEL_ID}\n"
-        f"[bold white]\u2139 Debug Mode[/bold white]: {debug_status}\n\n"
-        f"[bold yellow]\u25c6 사용 예시:[/bold yellow]\n"
-        f"  * '내일 오후 3시에 팀장님과 미팅 등록해줘'\n"
-        f"  * '오늘 일정 브리핑해줘'\n"
-        f"  * '이번주 금요일 오후에 빈 시간대 탐색해줘'\n\n"
-        f"[bold magenta]\u25c6 명령어 리스트:[/bold magenta]\n"
-        f"  * [bold green]/debug [on|off][/bold green] : 실시간 에이전트 추론/도구호출 이력 출력 토글\n"
-        f"  * [bold green]/list[/bold green]          : DB 등록 전체 일정 스타일 표 조회\n"
-        f"  * [bold green]/clear[/bold green]         : 대화 메모리 초기화\n"
-        f"  * [bold green]/exit[/bold green]          : 에이전트 종료"
+        f"[bold bright_cyan]✳ Personal Calendar Agent[/bold bright_cyan] [dim](powered by Claude Agent SDK & AWS Bedrock)[/dim]\n\n"
+        f"  [bold white]Model:[/bold white]     [cyan]{BEDROCK_MODEL_ID}[/cyan]\n"
+        f"  [bold white]Region:[/bold white]    [cyan]{AWS_REGION}[/cyan]\n"
+        f"  [bold white]Time:[/bold white]      [cyan]{get_current_time_str()}[/cyan]\n"
+        f"  [bold white]Workspace:[/bold white] [dim]{cwd}[/dim]\n"
+        f"  [bold white]Debug:[/bold white]     {debug_status}\n\n"
+        f"[bold bright_yellow]Examples:[/bold bright_yellow]\n"
+        f"  [dim]•[/dim] 'Add a team sync meeting tomorrow at 3 PM'\n"
+        f"  [dim]•[/dim] 'Show my schedule for this week'\n"
+        f"  [dim]•[/dim] 'Find available free slots on Friday afternoon'\n\n"
+        f"[bold bright_magenta]Commands:[/bold bright_magenta]\n"
+        f"  [bold green]/debug [on|off][/bold green] : Toggle real-time agent reasoning & tool execution stream\n"
+        f"  [bold green]/list[/bold green]          : View all scheduled events in database table\n"
+        f"  [bold green]/clear[/bold green]         : Clear conversation memory history\n"
+        f"  [bold green]/exit[/bold green]          : Exit the agent session"
     )
     
-    console.print(Panel(banner_text, border_style="cyan", title="[bold white]Welcome[/bold white]", expand=False))
+    console.print(Panel(banner_text, border_style="cyan", title="[bold white]Claude Code CLI[/bold white]", expand=False))
     console.print()
 
 def list_all_events():
     repo = CalendarRepository()
     events = repo.search_events(status=None)
     if not events:
-        console.print("[yellow]\u2139 등록된 일정이 없습니다.[/yellow]\n")
+        console.print("[yellow]\u2139 No events registered in database.[/yellow]\n")
         return
         
-    table = Table(title="\u25b6 전체 일정 목록", border_style="blue", header_style="bold magenta")
+    table = Table(title="\u25b6 All Scheduled Events", border_style="blue", header_style="bold magenta")
     table.add_column("ID", justify="center", style="cyan", no_wrap=True)
-    table.add_column("제목", style="bold white")
-    table.add_column("시작 시간", style="green")
-    table.add_column("종료 시간", style="green")
-    table.add_column("장소", style="yellow")
-    table.add_column("참석자", style="magenta")
-    table.add_column("상태", justify="center", style="bold blue")
+    table.add_column("Title", style="bold white")
+    table.add_column("Start Time", style="green")
+    table.add_column("End Time", style="green")
+    table.add_column("Location", style="yellow")
+    table.add_column("Attendees", style="magenta")
+    table.add_column("Status", justify="center", style="bold blue")
 
     for ev in events:
         table.add_row(
@@ -85,12 +90,12 @@ def clean_agent_response(response: str) -> str:
     return cleaned.strip()
 
 def handle_debug_event(event_type: str, data: Any, status: Optional[Any] = None):
-    """기존 디버그 UI(Rich Panel) 100% 보존 + 로딩바 지원 및 블록간 한 줄 띄움 처리"""
+    """기존 디버그 UI(Rich Panel) 100% 보존 + 로딩바 지원 및 영문 라벨 적용"""
     if event_type == "tool_use":
         tool_name = data.get("name", "unknown")
         tool_input = data.get("input", {})
         if status:
-            status.update(f"[bold yellow]\u23f1 도구 호출 중 ({tool_name})...[/bold yellow]")
+            status.update(f"[bold yellow]\u23f1 Executing tool call ({tool_name})...[/bold yellow]")
         console.print(
             Panel(
                 f"[bold cyan]Tool Name:[/bold cyan] [white]{tool_name}[/white]\n"
@@ -103,7 +108,7 @@ def handle_debug_event(event_type: str, data: Any, status: Optional[Any] = None)
         console.print()
     elif event_type == "tool_result":
         if status:
-            status.update("[bold blue]\u23f1 도구 결과 반영 및 분석 중...[/bold blue]")
+            status.update("[bold blue]\u23f1 Analyzing tool execution results...[/bold blue]")
         console.print(
             Panel(
                 f"[bold green]Output:[/bold green] {data}",
@@ -115,17 +120,17 @@ def handle_debug_event(event_type: str, data: Any, status: Optional[Any] = None)
         console.print()
     elif event_type == "thought":
         if status:
-            status.update("[bold green]\u23f1 추론 및 다음 단계 준비 중...[/bold green]")
+            status.update("[bold green]\u23f1 Reasoning next steps...[/bold green]")
         console.print(f"[dim gray]\u25b6 [THOUGHT] {data}[/dim gray]\n")
     elif event_type == "error":
         console.print(f"[bold red]\u2716 [DEBUG ERROR] {data}[/bold red]\n")
 
 def main():
-    parser = argparse.ArgumentParser(description="Rich CLI 기반 개인일정관리 에이전트")
-    parser.add_argument("--debug", action="store_true", help="실시간 디버그 모드를 활성화하여 시작합니다.")
+    parser = argparse.ArgumentParser(description="Interactive Personal Calendar Agent CLI")
+    parser.add_argument("--debug", action="store_true", help="Enable real-time debug stream mode.")
     args = parser.parse_args()
 
-    # 디버그 모드 기본값을 True로 유지하되 로딩바와 동시 작동되도록 설정
+    # 디버그 모드 기본값을 True로 유지하되 로딩바와 동시 작동
     debug_mode = True if not args.debug else args.debug
 
     # 1. DB 초기화
@@ -135,7 +140,7 @@ def main():
     if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY or AWS_ACCESS_KEY_ID == "your_aws_access_key_id_here":
         console.print(
             Panel(
-                "[bold red]\u2716 .env 파일에 AWS_ACCESS_KEY_ID와 AWS_SECRET_ACCESS_KEY를 설정해야 작동합니다.[/bold red]",
+                "[bold red]\u2716 Please configure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env file.[/bold red]",
                 border_style="red"
             )
         )
@@ -144,7 +149,7 @@ def main():
     try:
         agent = ClaudeCalendarAgent(memory=memory)
     except Exception as e:
-        console.print(f"[bold red]\u2716 에이전트 초기화 중 오류 발생: {e}[/bold red]")
+        console.print(f"[bold red]\u2716 Error initializing agent: {e}[/bold red]")
         traceback.print_exc()
         agent = None
 
@@ -157,12 +162,12 @@ def main():
                 continue
                 
             if user_input.lower() in ["/exit", "exit", "quit"]:
-                console.print("[bold cyan]\u2716 일정관리 에이전트를 종료합니다. 좋은 하루 되세요![/bold cyan]")
+                console.print("[bold cyan]\u2716 Exiting Personal Calendar Agent session. Have a great day![/bold cyan]")
                 break
                 
             elif user_input.lower() == "/clear":
                 memory.clear()
-                console.print("[bold yellow]\u2139 에이전트 대화 이력이 초기화되었습니다.[/bold yellow]\n")
+                console.print("[bold yellow]\u2139 Conversation history cleared.[/bold yellow]\n")
                 continue
                 
             elif user_input.lower() == "/list":
@@ -182,22 +187,22 @@ def main():
                     
                 if cmd in ["on", "1", "true"]:
                     debug_mode = True
-                    console.print("[bold green]\u2139 디버그 모드가 활성화되었습니다. (모든 툴 호출 및 세부 처리 이력이 출력됩니다)[/bold green]\n")
+                    console.print("[bold green]\u2139 Debug mode enabled. (Real-time tool calls & reasoning stream will be displayed)[/bold green]\n")
                 elif cmd in ["off", "0", "false"]:
                     debug_mode = False
-                    console.print("[bold yellow]\u2139 디버그 모드가 비활성화되었습니다. (간략한 동적 로딩바만 표시됩니다)[/bold yellow]\n")
+                    console.print("[bold yellow]\u2139 Debug mode disabled. (Summary spinner status will be displayed)[/bold yellow]\n")
                 else:
                     debug_mode = not debug_mode
                     status_str = "[bold green]ON[/bold green]" if debug_mode else "[bold yellow]OFF[/bold yellow]"
-                    console.print(f"\u2139 디버그 모드가 {status_str} 상태로 전환되었습니다.\n")
+                    console.print(f"\u2139 Debug mode toggled to {status_str}.\n")
                 continue
 
             if not agent:
-                console.print("[bold red]\u2716 에이전트가 초기화되지 않아 요청을 수행할 수 없습니다.[/bold red]\n")
+                console.print("[bold red]\u2716 Agent not initialized. Cannot process request.[/bold red]\n")
                 continue
 
-            # 에이전트 작업 실행 (기존 Rich Panel 디버그 UI 100% 누적 + 각 작업별 실시간 로딩바 동시 가동)
-            with console.status("[bold green]\u23f1 요청을 확인하고 일정을 처리하는 중입니다...[/bold green]", spinner="dots") as status:
+            # 에이전트 작업 실행 (Claude Code 스타일 로딩바 & 누적 디버그 패널)
+            with console.status("[bold green]\u23f1 Processing schedule request...[/bold green]", spinner="dots") as status:
                 def debug_event_bridge(event_type: str, data: Any):
                     if debug_mode:
                         handle_debug_event(event_type, data, status=status)
@@ -206,9 +211,9 @@ def main():
                             name = data.get("name", "unknown")
                             status.update(f"[bold cyan]\u2139 [TOOL CALL] {name}...[/bold cyan]")
                         elif event_type == "thought":
-                            status.update("[bold green]\u25b6 [THOUGHT] 추론 중...[/bold green]")
+                            status.update("[bold green]\u25b6 [THOUGHT] Reasoning...[/bold green]")
                         elif event_type == "tool_result":
-                            status.update("[bold blue]\u2714 [RESULT] 도구 결과 반영 중...[/bold blue]")
+                            status.update("[bold blue]\u2714 [RESULT] Tool result reflected...[/bold blue]")
 
                 raw_response = agent.run(user_input, verbose=True, debug=True, on_event=debug_event_bridge)
             console.print()
@@ -228,10 +233,10 @@ def main():
             console.print()
 
         except (KeyboardInterrupt, EOFError):
-            console.print("\n[bold cyan]\u2716 일정관리 에이전트를 종료합니다. 좋은 하루 되세요![/bold cyan]")
+            console.print("\n[bold cyan]\u2716 Exiting Personal Calendar Agent session. Have a great day![/bold cyan]")
             sys.exit(0)
         except Exception as e:
-            console.print(f"[bold red]\u2716 오류 발생: {e}[/bold red]\n")
+            console.print(f"[bold red]\u2716 Error occurred: {e}[/bold red]\n")
             traceback.print_exc()
 
 if __name__ == "__main__":

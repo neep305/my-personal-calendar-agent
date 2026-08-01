@@ -142,4 +142,4 @@ class ClaudeCalendarAgent:
             if t not in unique_texts:
                 unique_texts.append(t)
                 
-        return "\n\n".join(unique_texts) or "일정 요청이 처리되었습니다."
+        return "\n\n".join(unique_texts) or "Schedule request has been processed."
