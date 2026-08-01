@@ -21,13 +21,27 @@ console = Console()
 
 def print_banner(debug_mode: bool):
     """
-    Claude Code CLI 스타일의 어플리케이션 아웃트로/배너 출력 (English UI)
+    CLI 아웃트로/배너 출력 (Big ASCII Art Header & English UI)
     """
     debug_status = "[bold green]ON[/bold green]" if debug_mode else "[bold dim]OFF[/bold dim]"
     cwd = os.getcwd()
     
+    ascii_banner = (
+        "[bold cyan]  ____    _    _     _____ _   _ ____    _   ____   [/bold cyan]\n"
+        "[bold cyan] / ___|  / \\  | |   | ____| \\ | |  _ \\  / \\ |  _ \\  [/bold cyan]\n"
+        "[bold cyan]| |     / _ \\ | |   |  _| |  \\| | | | |/ _ \\| |_) | [/bold cyan]\n"
+        "[bold cyan]| |___ / ___ \\| |___| |___| |\\  | |_| / ___ \\  _ <  [/bold cyan]\n"
+        "[bold cyan] \\____/_/   \\_\\_____|_____|_| \\_|____/_/   \\_\\_| \\_\\ [/bold cyan]\n"
+        "[bold bright_magenta]  _    ____ _____ _   _ _____                       [/bold bright_magenta]\n"
+        "[bold bright_magenta] / \\  / ___| ____| \\ | |_   _|                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]/ _ \\| |  _|  _| |  \\| | | |                        [/bold bright_magenta]\n"
+        "[bold bright_magenta]/ ___ \\ |_| | |___| |\\  | | |                        [/bold bright_magenta]\n"
+        "[bold bright_magenta]/_/   \\_\\____|_____|_| \\_||_|                        [/bold bright_magenta]"
+    )
+    
     banner_text = (
-        f"[bold bright_cyan]✳ Personal Calendar Agent[/bold bright_cyan] [dim](powered by Claude Agent SDK & AWS Bedrock)[/dim]\n\n"
+        f"{ascii_banner}\n\n"
+        f"  [dim](powered by Claude Agent SDK & AWS Bedrock)[/dim]\n\n"
         f"  [bold white]Model:[/bold white]     [cyan]{BEDROCK_MODEL_ID}[/cyan]\n"
         f"  [bold white]Region:[/bold white]    [cyan]{AWS_REGION}[/cyan]\n"
         f"  [bold white]Time:[/bold white]      [cyan]{get_current_time_str()}[/cyan]\n"
@@ -44,7 +58,7 @@ def print_banner(debug_mode: bool):
         f"  [bold green]/exit[/bold green]          : Exit the agent session"
     )
     
-    console.print(Panel(banner_text, border_style="cyan", title="[bold white]Claude Code CLI[/bold white]", expand=False))
+    console.print(Panel(banner_text, border_style="cyan", title="[bold white]Personal Schedule Agent[/bold white]", expand=False))
     console.print()
 
 def list_all_events():
