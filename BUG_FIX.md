@@ -1,89 +1,87 @@
-# 🐛 BUG_FIX: 상대적 날짜 파싱 오류 (2023년 잘못 등록 이슈)
+# 🐛 BUG_FIX: Relative Date Parsing Error (2023 Past Year Hallucination Fix)
 
 ---
 
-## 1. 이슈 개요 (Issue Overview)
-* **이슈 내용**: 사용자가 "이번주 토요일 오후 3시부터 5시까지 자격증 공부 일정 등록해줘" 또는 "이번주 일요일 12시부터 5시까지 RTCDP 공부 등록해줘"라고 지시했을 때, 현재 연도(`2026년`)가 아닌 **`2023-06-03`**, **`2023-06-04`**와 같은 엉뚱한 과거 날짜로 일정이 등록되는 문제 발생.
+## 1. Issue Overview
+* **Issue Description**: When users requested relative schedule creation (e.g., "Schedule study session for this Saturday 3 PM to 5 PM"), the agent created events with past year dates (`2023-06-03`, `2023-06-04`) instead of the current year (`2026-08-01`).
 
 ---
 
-## 2. 발생 원인 분석 (Root Cause Analysis)
+## 2. Root Cause Analysis
 
-### ① LLM 사전 학습 달력 데이터 관성 (Training Cutoff Bias)
-* LLM(Claude) 내부 프리셋에는 2023년 달력 데이터(예: `2023-06-03`이 토요일, `2023-06-04`가 일요일)가 사전 학습 템플릿으로 강하게 남아있습니다.
-* 단지 단일 문자열 `"현재 시각: 2026-07-30"` 정보만 제공했을 때, LLM이 '이번주 토요일'을 자체 계산하는 과정에서 사전 학습 예시 템플릿(2023년 6월 3일)을 그대로 인자에 입력하는 환각(Hallucination) 현상이 발생했습니다.
+### ① LLM Training Cutoff Calendar Bias
+* Pre-trained LLM models (Claude) have strong internal training weights for past calendars (e.g. `2023-06-03` as Saturday).
+* Providing only a static string like `"Current Time: 2026-07-30"` caused the LLM to hallucinate using pre-trained 2023 date templates when resolving relative phrases like "this Saturday".
 
-### ② LLM 달력 산술 연산(Calendar Arithmetic)의 한계
-* LLM은 복잡한 날짜 산술 연산(특정 연도의 시작 요일과 당월 일수 계산)을 순수 추론만으로 100% 정확하게 계산하기 어렵습니다.
+### ② Limitations of Pure LLM Calendar Arithmetic
+* LLMs cannot guarantee 100% accurate calendar arithmetic (e.g., calculating leap years, month boundaries, weekday offsets) through unassisted reasoning alone.
 
-### ③ 명시적 상대 날짜 매핑표 부재
-* 에이전트 프롬프트에 오늘 기준 이번 주/다음 주의 요일별 명시적인 `YYYY-MM-DD` 기준표가 제시되지 않아, LLM이 임의의 날짜로 추론을 시도했습니다.
+### ③ Lack of Explicit Relative Date Mapping Tables
+* The system prompt previously lacked an explicit `YYYY-MM-DD` weekday lookup table relative to today's date, forcing the LLM to infer dates independently.
 
 ---
 
-## 3. 해결 방안 및 조치 내역 (Fix & Implementation)
+## 3. Fix & Implementation
 
-LLM에게 달력 날짜 연산을 직접 계산하도록 맡기지 않고, **Python 코드 차원에서 실시간으로 오늘 기준 이번 주/다음 주의 요일별 정확한 YYYY-MM-DD 날짜를 계산하여 System Prompt 상단에 명시적으로 주입**하도록 변경했습니다.
+Instead of relying on LLM date arithmetic, **Python code calculates exact YYYY-MM-DD dates for this week and next week in real-time, injecting them as an explicit lookup table into the System Prompt**.
 
-### 📄 코드 수정 ([agent/prompt.py](file:///Users/jason/dev/ai/my-personal-calendar-agent/agent/prompt.py))
+### 📄 Code Modifications ([agent/prompt.py](file:///Users/jason/dev/ai/my-personal-calendar-agent/agent/prompt.py))
 
-1. **`get_relative_date_info()` 함수 구현**:
-   Python `datetime` 및 `timedelta` 연산을 사용하여 오늘, 내일, 이번주 월~일, 다음주 월~일의 날짜를 동적으로 생성.
+1. **`get_relative_date_info()` Function**:
+   Uses Python `datetime` and `timedelta` to dynamically compute exact dates for Today, Tomorrow, This Week (Mon–Sun), and Next Week (Mon–Sun).
 
-2. **System Prompt 동적 주입 구조**:
+2. **Dynamic System Prompt Structure**:
 ```text
-[현재 기준 시간 및 요일 매핑 테이블]
-- 현재 시각: 2026-07-30 22:37:00 (목요일)
-- 오늘 (Today): 2026-07-30 (목요일)
-- 내일 (Tomorrow): 2026-07-31
+[CURRENT REFERENCE TIME & DAY MAPPING TABLE]
+- Current Time: 2026-07-30 22:37:00 (Thursday)
+- Today: 2026-07-30 (Thursday)
+- Tomorrow: 2026-07-31
 
-[이번 주 요일별 정확한 YYYY-MM-DD 매핑]:
-  • 이번주 월요일: 2026-07-27
-  • 이번주 화요일: 2026-07-28
-  • 이번주 수요일: 2026-07-29
-  • 이번주 목요일: 2026-07-30 👈 (오늘)
-  • 이번주 금요일: 2026-07-31
-  • 이번주 토요일: 2026-08-01
-  • 이번주 일요일: 2026-08-02
+[Accurate YYYY-MM-DD Date Mapping for THIS WEEK]:
+  • This week Monday: 2026-07-27
+  • This week Tuesday: 2026-07-28
+  • This week Wednesday: 2026-07-29
+  • This week Thursday: 2026-07-30 <- (Today)
+  • This week Friday: 2026-07-31
+  • This week Saturday: 2026-08-01
+  • This week Sunday: 2026-08-02
 ```
 
-3. **프롬프트 제어 지침 강제**:
+3. **Strict System Directives**:
 ```text
-- 일시 파싱 시 반드시 상단의 [이번 주/다음 주 요일별 정확한 YYYY-MM-DD 매핑] 테이블을 우선적으로 참조하라.
-- 절대 상단 테이블과 다른 연도(예: 2023년 등)나 잘못된 날짜를 임의로 계산하지 마라.
+- Always reference the [Accurate YYYY-MM-DD Date Mapping] table above when parsing dates.
+- Never compute past cutoff years (e.g. 2023) or arbitrary dates.
 ```
 
 ---
 
-## 4. 검증 결과 (Verification Results)
+## 4. Verification Results
 
-| 지시어 | 수정 전 (오류) | 수정 후 (정상) |
+| Relative Expression | Before Fix (Error) | After Fix (Resolved) |
 | --- | --- | --- |
-| 이번주 토요일 | `2023-06-03` | **`2026-08-01` (토요일)** |
-| 이번주 일요일 | `2023-06-04` | **`2026-08-02` (일요일)** |
+| This Saturday | `2023-06-03` | **`2026-08-01` (Saturday)** |
+| This Sunday | `2023-06-04` | **`2026-08-02` (Sunday)** |
 
-단위 테스트 (`scratch/test_date_parsing.py`) 및 pytest 전체 테스트 통과 완료.
-
----
-
-## 5. 추가 개선 내역 (Recent Enhancements)
-
-### ① 다국어 응답 매니페스트 (Multi-lingual Matching Policy)
-* 사용자의 입력 언어에 맞춰 답변 언어를 동적으로 변경하도록 System Prompt([`agent/prompt.py`](file:///Users/jason/dev/ai/my-personal-calendar-agent/agent/prompt.py)) 및 스킬([`SKILL.md`](file:///Users/jason/dev/ai/my-personal-calendar-agent/.agents/skills/calendar-smart-scheduler/SKILL.md)) 규칙 추가.
-* 단, `[TOOL CALL]`, `[THOUGHT]`, `mcp__calendar__*`, 유니코드 특수문자(`▶`, `✔`, `⏱` 등) 등 터미널 디버그 로그 및 시스템 표현의 영문 표기는 언어 변경 없이 100% 영문 고정.
-
-### ② 터미널 컬럼 왜곡 방지를 위한 유니코드 특수문자 도입
-* 2셀 가변 폭 이모지(📅, 📊, 🛠️, 📌 등) 대신 단일 폭 유니코드 기호(`▶`, `✔`, `⏱`, `■`, `●`, `◆`, `ℹ`, `✖`) 적용.
-
-### ③ CLI 스피너 & 누적 로그 UI 구현
-* `main.py`에 동적 스피너(`console.status`)와 한 줄 띄움 간격의 단계별 디버그 패널 누적(Persist) UI 적용 완료.
+Unit test (`scratch/test_date_parsing.py`) and all pytest test cases pass cleanly.
 
 ---
 
-## 🔗 공식 문서 References (Official Documentation References)
+## 5. Recent Enhancements
+
+### ① Dynamic Multi-Lingual Matching Policy
+* Updated System Prompt ([`agent/prompt.py`](file:///Users/jason/dev/ai/my-personal-calendar-agent/agent/prompt.py)) and Skill ([`SKILL.md`](file:///Users/jason/dev/ai/my-personal-calendar-agent/.agents/skills/calendar-smart-scheduler/SKILL.md)) rules to match the user's prompt language while preserving English system terms (`[TOOL CALL]`, `[THOUGHT]`, `mcp__calendar__*`, ▶, ✔, ⏱).
+
+### ② Single-Width Unicode Symbol Formatting
+* Replaced 2-cell wide emojis (📅, 📊, 🛠️, 📌) with single-width Unicode symbols (`▶`, `✔`, `⏱`, `■`, `●`, `◆`, `ℹ`, `✖`) to eliminate terminal column misalignment.
+
+### ③ Rich CLI Dynamic Spinner & Log Accumulation UI
+* Integrated dynamic loading spinner (`console.status`) with line-by-line persistent debug panel accumulation in `main.py`.
+
+---
+
+## 🔗 Official Documentation References
 
 * **Anthropic Claude Agent SDK**: [Anthropic Engineering Blog - Building Agents with the Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
 * **Model Context Protocol (MCP)**: [MCP Official Specification & Documentation](https://modelcontextprotocol.io/introduction)
 * **Anthropic Claude API & Prompt Engineering**: [Anthropic API Documentation](https://docs.anthropic.com/en/docs/welcome)
 * **AWS Bedrock Integration**: [AWS Bedrock User Guide - Anthropic Claude Models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-claude.html)
-
