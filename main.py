@@ -33,12 +33,12 @@ def print_banner(debug_mode: bool):
         "[bold cyan] ██║     ██╔══██║██║     ██╔══╝  ██║╚██╗██║██║  ██║██╔══██║██╔══██╗[/bold cyan]\n"
         "[bold cyan] ╚██████╗██║  ██║███████╗███████╗██║ ╚████║██████╔╝██║  ██║██║  ██║[/bold cyan]\n"
         "[bold cyan]  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝[/bold cyan]\n"
-        "[bold orange3]    █████╗  ██████╗ ███████╗███╗   ██╗████████╗                   [/bold orange3]\n"
-        "[bold orange3]   ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝                   [/bold orange3]\n"
-        "[bold orange3]   ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║                      [/bold orange3]\n"
-        "[bold orange3]   ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║                      [/bold orange3]\n"
-        "[bold orange3]   ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║                      [/bold orange3]\n"
-        "[bold orange3]   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝                      [/bold orange3]"
+        "[bold bright_magenta]    █████╗  ██████╗ ███████╗███╗   ██╗████████╗                   [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝                   [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝                      [/bold bright_magenta]"
     )
     
     banner_text = (
@@ -57,7 +57,7 @@ def print_banner(debug_mode: bool):
         f"  [bold green]/debug [on|off][/bold green] : Toggle real-time agent reasoning & tool execution stream\n"
         f"  [bold green]/list[/bold green]          : View all scheduled events in database table\n"
         f"  [bold green]/clear[/bold green]         : Clear conversation memory history\n"
-        f"  [bold green]/exit[/bold green]          : Exit the agent session"
+        f"  [bold green]/exit[/bold green]          : Exit the agent session\n"
     )
     
     console.print(Panel(banner_text, border_style="cyan", title="[bold white]Personal Schedule Agent[/bold white]", expand=False))
