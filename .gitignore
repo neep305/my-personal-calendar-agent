@@ -1,0 +1,15 @@
+# Environment & Secret files
+.env
+mcp.json
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Database & Cache
+*.db
+.pytest_cache/

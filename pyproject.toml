@@ -1,0 +1,28 @@
+[project]
+name = "my-personal-calendar-agent"
+version = "0.1.0"
+description = "AWS Bedrock Claude Agent 기반 개인일정관리 에이전트"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.20.0",
+    "claude-agent-sdk>=0.1.0",
+    "boto3>=1.34.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "tabulate>=0.9.0",
+    "prompt-toolkit>=3.0.0",
+    "rich>=13.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agent", "storage", "tools"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
