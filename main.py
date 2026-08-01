@@ -26,21 +26,23 @@ def print_banner(debug_mode: bool):
     debug_status = "[bold green]ON[/bold green]" if debug_mode else "[bold dim]OFF[/bold dim]"
     cwd = os.getcwd()
     
-    ascii_banner = (
-        "[bold cyan]  ____    _    _     _____ _   _ ____    _   ____   [/bold cyan]\n"
-        "[bold cyan] / ___|  / \\  | |   | ____| \\ | |  _ \\  / \\ |  _ \\  [/bold cyan]\n"
-        "[bold cyan]| |     / _ \\ | |   |  _| |  \\| | | | |/ _ \\| |_) | [/bold cyan]\n"
-        "[bold cyan]| |___ / ___ \\| |___| |___| |\\  | |_| / ___ \\  _ <  [/bold cyan]\n"
-        "[bold cyan] \\____/_/   \\_\\_____|_____|_| \\_|____/_/   \\_\\_| \\_\\ [/bold cyan]\n"
-        "[bold bright_magenta]  _    ____ _____ _   _ _____                       [/bold bright_magenta]\n"
-        "[bold bright_magenta] / \\  / ___| ____| \\ | |_   _|                      [/bold bright_magenta]\n"
-        "[bold bright_magenta]/ _ \\| |  _|  _| |  \\| | | |                        [/bold bright_magenta]\n"
-        "[bold bright_magenta]/ ___ \\ |_| | |___| |\\  | | |                        [/bold bright_magenta]\n"
-        "[bold bright_magenta]/_/   \\_\\____|_____|_| \\_||_|                        [/bold bright_magenta]"
+    unicode_banner = (
+        "[bold cyan]  ██████╗ █████╗ ██╗     ███████╗███╗   ██╗██████╗  █████╗ ██████╗ [/bold cyan]\n"
+        "[bold cyan] ██╔════╝██╔══██╗██║     ██╔════╝████╗  ██║██╔══██╗██╔══██╗██╔══██╗[/bold cyan]\n"
+        "[bold cyan] ██║     ███████║██║     █████╗  ██╔██╗ ██║██║  ██║███████║██████╔╝[/bold cyan]\n"
+        "[bold cyan] ██║     ██╔══██║██║     ██╔══╝  ██║╚██╗██║██║  ██║██╔══██║██╔══██╗[/bold cyan]\n"
+        "[bold cyan] ╚██████╗██║  ██║███████╗███████╗██║ ╚████║██████╔╝██║  ██║██║  ██║[/bold cyan]\n"
+        "[bold cyan]  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝[/bold cyan]\n"
+        "[bold bright_magenta]    █████╗  ██████╗ ███████╗███╗   ██╗████████╗                   [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝                   [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║                      [/bold bright_magenta]\n"
+        "[bold bright_magenta]   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝                      [/bold bright_magenta]"
     )
     
     banner_text = (
-        f"{ascii_banner}\n\n"
+        f"{unicode_banner}\n\n"
         f"  [dim](powered by Claude Agent SDK & AWS Bedrock)[/dim]\n\n"
         f"  [bold white]Model:[/bold white]     [cyan]{BEDROCK_MODEL_ID}[/cyan]\n"
         f"  [bold white]Region:[/bold white]    [cyan]{AWS_REGION}[/cyan]\n"
