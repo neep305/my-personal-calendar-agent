@@ -78,3 +78,12 @@ LLM에게 달력 날짜 연산을 직접 계산하도록 맡기지 않고, **Pyt
 ### ③ CLI 스피너 & 누적 로그 UI 구현
 * `main.py`에 동적 스피너(`console.status`)와 한 줄 띄움 간격의 단계별 디버그 패널 누적(Persist) UI 적용 완료.
 
+---
+
+## 🔗 공식 문서 References (Official Documentation References)
+
+* **Anthropic Claude Agent SDK**: [Anthropic Engineering Blog - Building Agents with the Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
+* **Model Context Protocol (MCP)**: [MCP Official Specification & Documentation](https://modelcontextprotocol.io/introduction)
+* **Anthropic Claude API & Prompt Engineering**: [Anthropic API Documentation](https://docs.anthropic.com/en/docs/welcome)
+* **AWS Bedrock Integration**: [AWS Bedrock User Guide - Anthropic Claude Models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-claude.html)
+

@@ -73,3 +73,11 @@ graph TD
    - 사용자가 한국어로 질문하면 응답 메시지를 한국어로, 영어(English)로 질문하면 응답 메시지를 영어로 작성하십시오.
    - 단, ✔, ℹ, ▶, ⏱, ■, ●, ◆, ✖ 등 유니코드 특수기호 및 `[TOOL CALL]`, `[THOUGHT]`, MCP 툴 명칭 등의 시스템/디버그 표현은 언어 변경 없이 고정 유지하십시오.
 
+---
+
+## ▶ 공식 문서 References (Official Documentation References)
+
+- **Anthropic Agent Design Guide**: [Building Agents with the Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
+- **Model Context Protocol (MCP)**: [MCP Specification & Tool Schema](https://modelcontextprotocol.io/introduction)
+- **Agent Skill Standard Protocol**: [Agent Skills Specification & Directory Structure](https://github.com/agentskills/agentskills)
+

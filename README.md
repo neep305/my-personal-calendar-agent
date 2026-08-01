@@ -1,4 +1,4 @@
-# 📅 AWS Bedrock & 공식 Claude Agent SDK 기반 개인일정관리 에이전트
+# 개인일정관리 에이전트
 
 Anthropic의 공식 파이썬 패키지인 **`claude-agent-sdk` (v0.2.128)**와 In-process **Model Context Protocol (MCP)** 기술, 그리고 **AWS Bedrock** 환경을 결합하여 구축한 지능형 개인 일정 관리 AI 에이전트입니다.
 
@@ -129,5 +129,16 @@ uv run main.py
   * Anthropic 공식 파이썬 패키지 개발 6대 핵심 기둥 및 표준 디렉토리 보일러플레이트, 개발 체크리스트
 * 📗 **[버그 조치 및 원인 분석 보고서 (BUG_FIX.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/BUG_FIX.md)**
   * 상대적 날짜 지시("이번주 토요일") 환각 원인 분석 및 실시간 요일 매핑 테이블 주입을 통한 100% 방지 조치 보고서
+
+---
+
+## 🔗 공식 문서 References (Official Documentation References)
+
+* **Anthropic Claude Agent SDK**: [Anthropic Engineering Blog - Building Agents with the Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
+* **Model Context Protocol (MCP)**: [MCP Official Specification & Documentation](https://modelcontextprotocol.io/introduction)
+* **Anthropic Claude API & Models**: [Anthropic API Documentation & Prompt Engineering Guide](https://docs.anthropic.com/en/docs/welcome)
+* **AWS Bedrock Integration**: [AWS Bedrock User Guide - Anthropic Claude Models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-claude.html)
+* **Pydantic Schema Validation**: [Pydantic Official Documentation](https://docs.pydantic.dev/latest/)
+* **Rich Terminal UI**: [Rich Official Documentation](https://rich.readthedocs.io/en/latest/)
 
 

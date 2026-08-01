@@ -80,8 +80,17 @@ my-agent-project/
 
 ---
 
-## 📚 관련 문서
+## 📚 관련 문서 & 공식 문서 References
 
+### 프로젝트 로컬 문서
 * [Claude Agent SDK 상세 지침 및 Pre-Tool-Hook 가이드 (CLAUDE_AGENT_SDK_DETAILS.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/CLAUDE_AGENT_SDK_DETAILS.md)
 * [버그 조치 및 원인 분석 문서 (BUG_FIX.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/BUG_FIX.md)
 * [프로젝트 메인 안내서 (README.md)](file:///Users/jason/dev/ai/my-personal-calendar-agent/README.md)
+
+### 공식 기술 문서 (Official Documentation References)
+* **Anthropic Claude Agent SDK**: [Anthropic Engineering Blog - Building Agents with the Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
+* **Model Context Protocol (MCP)**: [MCP Official Specification & Documentation](https://modelcontextprotocol.io/introduction)
+* **Anthropic Claude API**: [Anthropic API Documentation & Prompt Engineering Guide](https://docs.anthropic.com/en/docs/welcome)
+* **AWS Bedrock Integration**: [AWS Bedrock User Guide - Anthropic Claude Models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-claude.html)
+* **Pydantic Schema Validation**: [Pydantic Official Documentation](https://docs.pydantic.dev/latest/)
+* **Rich Terminal UI**: [Rich Official Documentation](https://rich.readthedocs.io/en/latest/)
